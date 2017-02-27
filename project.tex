@@ -128,6 +128,8 @@ F(L, S, Y, \mu) = ||L||_* + \lambda ||S||_1 + <Y, M - L - S> + \frac{\mu}{2}||M-
 
 In addition, it uses an iterative approach towards updating the $S$ and $Y$ matrices that limits the number of SVD operations necessary for the algorithm to succeed. While this algorithm has not been proven correct, the fact that it is much faster in practice, and has been shown to converge in many practical demonstrations, we will use this algorithm when analyzing the performance of Robust PCA on our datasets. One important feature to note, is that it is recommended that $\mu_0$ be set to $\frac{1.25}{||M||_2}$.
 
+During the analysis section of this paper, we primarily used code obtained from \cite{usedcode}, which is a translation of the MATLAB implementation of RPCA into numpy created by Kyle Kastner.
+
 \section{Potential Uses for Robust PCA}
 
 \subsection{Facial Identification}
@@ -149,8 +151,37 @@ One useful metric, and the one used by the original paper, was the metric $\frac
 
 One difficulty with using this form of error, while it is the most common type used in papers discussing the Robust PCA problem, is that when using real world data, the true low rank matrix is not known, only the original matrix $M$. Replacing $L_0$ with $M$ above results in the metric becomign $\frac{||E||_F}{||M||_F}$, or to restate another way, measures that the sum of the squares of the error matrix derived relative to the original matrix. This can be used to determine whether the Robust PCA algorithm has successfully found a relatively small error in it's decomposition, but does not give us much indication into how well it performed (that is, whether the low rank matrix obtained is truly indicative of the data underlying the metrics).
 
-\subsection{More Metrics?}
+\subsection{Clustering Metric}
 
+In the particular case of eigenfaces, one stated goal of the creation of the eigenfaces involved is to allow for easy recognition of particular people. As such, we could evaluate how well our eigenfaces perform based on how well they correctly cause images of the same person to be clustered close together. Let us call $v_1 .. v_k$ to be the projection of a particular image onto the first to the kth eigenface generated either Robust or standard PCA, which is a natural dimensionality reduction often used to analyze PCA performance.
+
+We can evaluate how well our data is clustered within the projection by using the silhouette width\cite{silhouette} for the clusters in the new projected space. Assuming we have mapped each metric into the basis provided by the k eigenfaces (let us call these mapped vectors objects $o_1 .. o_m$), we can define our clusters $C_1 .. C_n$ to be the natural clusters formed when clustering all images of the same individual.
+
+We can define $a(o_i)$ to be the average distance of the object $o_i$ within it's cluster, $b(o_i)$ to the minimum over all other clusters of average distance to that cluster, and the silhouette distance for that object to be the difference of those measures over the maximum.
+
+\[
+a(o_i) = \frac{1}{|C_{o_i}| - 1} \sum_{o_j \in C_{o_i}, o_j \ne o_i} d(o_i, o_j)
+\]
+
+\[
+b(o_i) = \min_{C_B \ne C_{o_i}} \frac{1}{|C_B|} \sum_{o_j \in C_B} d(o_i, o_j)
+\]
+
+\[
+sil(o_i) = \frac{b(o_i) - a(o_i)}{\max{a(o_i), b(o_i)}}
+\]
+
+Then, the silhouette width of the a cluster is naturally defined as the average silhouette width of the objects within it, and the width of the entire clustering to be the average over its clusters.
+ 
+\[
+sil(C_i) = \frac{1}{|C_i|}\sum_{o_j \in C_i} sil(o_j)
+\]
+
+\[
+sil(C) = \frac{1}{n}\sum_{i = 1}^{n} sil(C_i)
+\]
+
+We can plot this coefficient over the choice of number of eigenfaces for each process (PCA and Robust PCA, varying $\lambda$) in order to determine what method leads to the most natural clustering of faces into the correct groups.
 
 \begin{thebibliography}{9}
 
@@ -162,7 +193,11 @@ One difficulty with using this form of error, while it is the most common type u
 
 \bibitem{pca} Eckart, C., \& Young, G. (1936). The approximation of one matrix by another of lower rank. Psychometrika, 1(3), 211-218.
 
+\bibitem{usedcode} Kastner, K. (2014) "Robust Matrix Decomposition." Garbage In Garbage Out. http://kastnerkyle.github.io/posts/robust-matrix-decomposition/
+
 \bibitem{iaml} Lin, Z., Chen, M., \& Ma, Y. (2010). The augmented lagrange multiplier method for exact recovery of corrupted low-rank matrices. arXiv preprint arXiv:1009.5055.
+
+\bibitem{silhouette} Rousseeuw, P. J. (1987). Silhouettes: a graphical aid to the interpretation and validation of cluster analysis. Journal of computational and applied mathematics, 20, 53-65.
 
 \bibitem{rpca} Wright, J., Ganesh, A., Rao, S., Peng, Y., \& Ma, Y. (2009). Robust principal component analysis: Exact recovery of corrupted low-rank matrices via convex optimization. In Advances in neural information processing systems (pp. 2080-2088).
 
