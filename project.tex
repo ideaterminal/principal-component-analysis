@@ -361,7 +361,11 @@ We think that it is interesting to explore the impact of Lambda on the low rank 
 
 Figure Y one shows background segmentation of the Bird Video using $\lambda = 0.2$, instead of 0.015 as in Figure Y. We can see that with a $\lambda$, RPCA’s performance in extracting background is roughly equivalent to naïve PCA. The impact of sparse noise on the extract background image for RPCA has also become apparent. The area of extracted foreground noise, on the other hand, is now much smaller and concentrated. With a large $\lambda$, RPCA is less aggressive in identifying noise and only large enough deviations from Ground Truth are considered noise.
 
-Based on the above experiment, we observed that RPCA is useful for removing irregularities in our dataset and therefore can help PCA obtain a good model governing the data. However, what makes RPCA effective is the regularization parameter lambda that controls how much noise to be removed. There are also different types of RPCA that are designed for removing specific types of noise[Link Paper]. Like any other machine learning problems, the first step towards effective dimensionality reduction is to understand the nature of our dataset and apply RPCA accordingly.
+\section{Conclusion}
+
+We have analyzed the use of RPCA in two separate domains: for facial recognition and for video segmentation. Our results show that while it has been said to have uses in the former domain, the fact that facial shadowing is itself low rank, it does not effectively separate that out, and in fact performs only marginally better than PCA (and certainly not enough to justify the longer processing time). However, in the latter case of video segementation, it performed quitre well.
+
+Based on the above experiments, we observed that RPCA is useful for removing irregularities in our dataset and therefore can help PCA obtain a good model governing the data. However, what makes RPCA effective is the regularization parameter lambda that controls how much noise to be removed. In addition, it is important that RPCA be applied in circumstances where the error is of a type that the method will recognize. Like any other machine learning technique, the first step towards effective dimensionality reduction is to understand the nature of our dataset and apply RPCA appropriately.
 
 \newpage
 
