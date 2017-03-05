@@ -87,3 +87,9 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+<<<<<<< aed2bd894ccb69de504b07c5f2161e442f013453
+videos/**/*
+=======
+videos/*/*
+>>>>>>> video stuff
