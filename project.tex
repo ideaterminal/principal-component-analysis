@@ -75,10 +75,8 @@
 \begin{titlepage}
 	\centering
 	{\scshape\LARGE University of Washington\par}
-	\vspace{1cm}
-	{\scshape\Large CSEP 521 Final Project\par}
 	\vspace{1.5cm}
-	{\huge\bfseries Practical Applications of RPCA\par}
+	{\huge\bfseries Practical Applications of Robust Principal Component Analysis\par}
 	\vspace{2cm}
 	{\Large\itshape  An Analysis by Jonathan Donovan \& Si Latt\par}
 
@@ -90,23 +88,23 @@
 
 
 \section{Abstract}
-In this paper we analyze the performance of PCA and robust PCA on datasets that are artificially made noisy. In particular, we use a method\cite{pcp} which attempts to decompose the corrupted matrix into a low rank and a sparse component. The low rank component can then be used to recover the principal components for the data being analyzed. We attempt this on facial data (to recover eigenfaces) and on video data (as background recovery) and examine the performance of Robust PCA for each of these applications.
+In this paper we analyze the performance of Principal Component Analysis (PCA) and Robust Principal Component Analysis (RPCA) on datasets that are artificially made noisy. In particular, we use a method\cite{pcp} which attempts to decompose the corrupted matrix into a low rank and a sparse component. The low rank component can then be used to recover the principal components for the data being analyzed. We attempted this on facial data (to recover eigenfaces) and on video data (as background recovery) and examined the performance of RPCA for each of these applications.
 
 \section{Introduction}
 
-\subsection{PCA}
+\subsection{Principal Component Analysis}
 
 \[ PCA(M, k) =\argmin_{M'}(||M-M'||_F ) \mid rank(M') \le k \]
 
 Principle Component Analysis\cite{pca} (or PCA) is the attempt to approximate a matrix $M$ with a nearby (in the Frobenius norm) low rank matrix $M'$. As a reminder, the rank of a matrix $M$ is the number of independent vectors that are needed to recreate the columns of the matrix, and the Frobenius norm of a matrix is a generalization of the euclidean norm for vectors, where $||A||_F = \sqrt{\sum_{a_{i,j} \in A}|a_{i,j}|^2}$.
 
-When the columns of the matrix we are performing PCA on represent a series of measurements (usually with the average subtracted out), with PCA we are essentially trying to decompose the measurements into linear independent 'hidden variables'. If we have reason to believe that our measurements are the result of a smaller subset of independent variables, PCA gives us the tools needed to find the best set of these variables.
+When the columns of the matrix we are performing PCA on represent a series of measurements (usually with the average subtracted out), with PCA we are essentially trying to decompose the measurements into linearly independent 'hidden variables'. If we have reason to believe that our measurements are the result of a smaller subset of independent variables, PCA gives us the tools needed to find the best set of these variables.
 
 PCA would not be useful if it were costly to compute, but thankfully, the problem formulation listed above is intimately related to a common operation in the analysis of matrices, that is: the Singular Value Decomposition. The Singular Value Decomposition (SVD) problem is a problem with the goal of decomposing a matrix into $M = U\Sigma V^*$, where $U$ and $V$ are unitary matrices ($UU^* = I$ and $V^*V = I$) and $\Sigma$ is a real diagonal matrix with the entries sorted. While the factorization may not be unique, the diagonal matrix is, and it can be shown that the best $k$-rank approximation of a matrix $M$ can be found as $M' = U \Sigma' V^*$ where $\Sigma'$ is the diagonal matrix $\Sigma$ with all entries $\sigma_{i,i} = 0$ for $i > k$. It suffices here to say that the SVD problem is well studied, and that solutions can be found quite quickly in $O(mn^2)$ time for an $m{\times}n$ matrix. Probabilstic methods exist which can perform even faster when $k << m, n$.
 
-\subsection{Robust PCA}
+\subsection{Robust Principal Component Analysis}
 
-Robust PCA\cite{pcp} is an extension of PCA to the domain of corrupted data. PCA can quite easily recognize data where redundancy in the information of the data points exists, but it does not properly account for the fact that the collection of data itself may be lossy. One circumstance in which PCA fails is where significant outliers exist in the data, where the inclusion of a single dramatic outlier may have a dramatic impact on the estimated principal components. In a world where massive amounts of data exist to be sample, but where the quality of the data may very significantly, a variation on PCA which incorporates robustness to these problems adds significant utility when analyzing data with the intent of discovering low rank approximations.
+Robust Principal Component Analysis (RPCA) \cite{pcp} is an extension of PCA to the domain of corrupted data. PCA can quite easily recognize data where redundancy in the information of the data points exists, but it does not properly account for the fact that the collection of data itself may be lossy. One circumstance in which PCA fails is where significant outliers exist in the data, where the inclusion of a single dramatic outlier may have a dramatic impact on the estimated principal components. In a world where massive amounts of data exist to be sample, but where the quality of the data may vary significantly, a variation on PCA which incorporates robustness to these problems adds significant utility when analyzing data with the intent of discovering low rank approximations.
 
 In the paper "Robust principal component analysis?"\cite{pcp} such a method is outlined, called Principal Component Pursuit (PCP). PCP breaks down the finding of the solution into decomposing a given matrix $M$ into two components $L$ and $S$ via the equation:
 
@@ -114,7 +112,7 @@ In the paper "Robust principal component analysis?"\cite{pcp} such a method is o
 L, S = \argmin_{L, S}(||L||_* + \lambda ||S||_1) \mid L + S = M
 \]
 
-where $||A||_*$ is the nuclear norm, defined as the sum of the singular values of M, or $\sum_{\sigma \in SVD(M)} \sigma$, and $||A||_1$ is the sum of the absolute values of the entries of $A$, or $\sum_{a_{i,j} \in A} |a_{i,j}|$. Amazingly, as part of the analysis the authors determine that there is a choice of parameter $\lambda = \frac{1}{\sqrt{n}}$ that succeeds with fairly high probability. To be specific this algorithm succeeds to capture the to perfectly capture the original matrices $L$ and $S$ with $P \ge 1 - \frac{c}{n^10}$ provided the conditions that (for an $n{\times}n$ matrix)
+where $||A||_*$ is the nuclear norm, defined as the sum of the singular values of M, or $\sum_{\sigma \in SVD(M)} \sigma$, and $||A||_1$ is the sum of the absolute values of the entries of $A$, or $\sum_{a_{i,j} \in A} |a_{i,j}|$. Amazingly, as part of the analysis the authors determine that there is a choice of parameter $\lambda = \frac{1}{\sqrt{n}}$ that succeeds with fairly high probability. To be specific this algorithm succeeds perfectly capture the original matrices $L$ and $S$ with $P \ge 1 - \frac{c}{n^10}$ provided the conditions that (for an $n{\times}n$ matrix)
 
 \[
 rank(L) \le \frac{p_r n}{\mu (log n)^2} \text{ and } m \le p_s n^2
@@ -128,32 +126,32 @@ However one difficulty with this algorithm is that, while provably able to separ
 F(L, S, Y, \mu) = ||L||_* + \lambda ||S||_1 + <Y, M - L - S> + \frac{\mu}{2}||M-L-S||_F^2
 \]
 
-In addition, it uses an iterative approach towards updating the $S$ and $Y$ matrices that limits the number of SVD operations necessary for the algorithm to succeed. While this algorithm has not been proven correct, the fact that it is much faster in practice, and has been shown to converge in many practical demonstrations, we will use this algorithm when analyzing the performance of Robust PCA on our datasets. One important feature to note, is that it is recommended that $\mu_0$ be set to $\frac{1.25}{||M||_2}$.
+In addition, it uses an iterative approach towards updating the $S$ and $Y$ matrices that limits the number of SVD operations necessary for the algorithm to succeed. While this algorithm has not been proven correct, the fact that it is much faster in practice, and has been shown to converge in many practical demonstrations, we will use this algorithm when analyzing the performance of RPCA on our datasets. One important feature to note, is that it is recommended that $\mu_0$ be set to $\frac{1.25}{||M||_2}$.
 
 During the analysis section of this paper, we primarily used code obtained from \cite{usedcode}, which is a translation of the MATLAB implementation of RPCA into numpy created by Kyle Kastner.
 
-\section{Potential Uses for Robust PCA}
+\section{Potential Uses for RPCA}
 
 \subsection{Facial Identification}
-One area we would like to investigate more thoroughly here, is the impact that Robust PCA has on the use of eigenfaces. Eigenfaces are the result of an attempt to use the low dimensional structure of facial images to create a small number of 'basis faces' that can be used to segment pictures of individuals, allowing identification of individuals based on a small number of projections. One property of image data in general that makes it quite amenable to PCA analysis is that the dimensions are naturally bounded (by 0 and 255 in most formats), meaning that no renormalization of particular dimensions needs to take place in order for PCA to find reasonable latent variables.
+One area we would like to investigate more thoroughly here, is the impact that RPCA has on the use of eigenfaces. Eigenfaces are the result of an attempt to use the low dimensional structure of facial images to create a small number of 'basis faces' that can be used to segment pictures of individuals, allowing identification of individuals based on a small number of projections. One property of image data in general that makes it quite amenable to PCA analysis is that the dimensions are naturally bounded (by 0 and 255 in most formats), meaning that no renormalization of particular dimensions needs to take place in order for PCA to find reasonable latent variables.
 
 There is another property of facial data that makes it an attractive target for PCA: it has been shown that an idealized Lambertian convex surface (that is, a convex surface that has an ideal matte appearance) when displayed with arbitrary illuminations, lies on a 9 dimensional subspace\cite{lambertian}. While faces are neither perfectly Lambertian nor perfectly convex, the fact that they may be approximated as such lends credence to the idea that analyzing a particular face (or group of faces) may involve looking for low dimensional data underlying the apparently complex representation of the images themselves (which can be on the order of thousands or even millions of pixels).
 
-Robust PCA has been shown to be capable of correctly identifying specularities in facial image data of a particular individual in the past\cite{rpca}. As part of our research, we will attempt to determine whether Robust PCA lends itself to analyzing large data sets of facial data with many different lighting circumstances. If the promises of the approach are to be believed, it should be capable of recognizing the irregularities caused by these circumstances and correcting for them, allowing for more accurate eigenfaces to be collected once the sparse error component is eliminated.
+RPCA has been shown to be capable of correctly identifying specularities in facial image data of a particular individual in the past\cite{rpca}. As part of our research, we will attempt to determine whether RPCA lends itself to analyzing large data sets of facial data with many different lighting circumstances. If the promises of the approach are to be believed, it should be capable of recognizing the irregularities caused by these circumstances and correcting for them, allowing for more accurate eigenfaces to be collected once the sparse error component is eliminated.
 
 \section{Video Segmentation}
 
-One area where RPCA is commonly used is in video surveillance. In surveillance videos, each frame can be considered as having two major components- the static background and the moving, sparse foreground objects. Recall that RPCA decomposes the original matrix M into two parts, the low rank part L and the sparse part, S. Therefore, for video surveillance, background can be modeled as the low rank component L and the foreground objects can be modeled as the sparse component, S.
+One area where RPCA is commonly used is in video surveillance. In surveillance videos, each frame can be considered as having two major components - the static background and the moving, sparse foreground objects. Recall that RPCA decomposes the original matrix M into two parts, the low rank part L and the sparse part, S. Therefore, for video surveillance, background can be modeled as the low rank component L and the foreground objects can be modeled as the sparse component, S.
 
 Turns out, naïve PCA can also be used for separating video background and foreground objects since background remains largely the same across frames and PCA can provide a robust probability distribution of the background. However, PCA is known to be susceptible to noise and we think it is interesting to explore how this naïve PCA modeling of background and foreground compare against RPCA and in the process, gain more insights into how RPCA works and how it complements PCA.
 
 \section{Metrics}
-The remainder of our paper will be spent analyzing the performance of Robust PCA relative to PCA on various data sets. In order to do so we would like to define a few metrics that would be useful when discussing the accuracy of Robust PCA in reproducing the original low rank matrix.
+The remainder of our paper will be spent analyzing the performance of RPCA relative to PCA on various data sets. In order to do so we would like to define a few metrics that would be useful when discussing the accuracy of RPCA in reproducing the original low rank matrix.
 
 \subsection{Frobenius error}
 One useful metric, and the one used by the original paper, was the metric $\frac{||L_0 - L||_F}{||L_0||_F}$, where $L_0$ is the true low rank matrix, and $L$ is the approximation that results from applying RPCA. This is a reasonable metric of the error of the approximation, as it is the sum of square errors of the approximation over the sum of squares of the values of the original matrix, giving a natural sense of 'how far' the resulting approximation lies from the true low rank matrix.
 
-One difficulty with using this form of error, while it is the most common type used in papers discussing the Robust PCA problem, is that when using real world data, the true low rank matrix is not known, only the original matrix $M$. Replacing $L_0$ with $M$ above results in the metric becomign $\frac{||E||_F}{||M||_F}$, or to restate another way, measures that the sum of the squares of the error matrix derived relative to the original matrix. This can be used to determine whether the Robust PCA algorithm has successfully found a relatively small error in it's decomposition, but does not give us much indication into how well it performed (that is, whether the low rank matrix obtained is truly indicative of the data underlying the metrics).
+One difficulty with using this form of error, while it is the most common type used in papers discussing the RPCA problem, is that when using real world data, the true low rank matrix is not known, only the original matrix $M$. Replacing $L_0$ with $M$ above results in the metric becomign $\frac{||E||_F}{||M||_F}$, or to restate another way, measures that the sum of the squares of the error matrix derived relative to the original matrix. This can be used to determine whether the RPCA algorithm has successfully found a relatively small error in it's decomposition, but does not give us much indication into how well it performed (that is, whether the low rank matrix obtained is truly indicative of the data underlying the metrics).
 
 \subsection{Clustering Metric}
 
@@ -250,11 +248,13 @@ However, as can be seen in the appendix. this trial performed very similarly to 
 
 Finally, the same analysis was performed on only those images that were very well lit (which can be found in bestyalefaces/ in the attached github project). The results were very similar, but to quickly summarize: again cosine was the best separating metric, again RPCA performed negligibly better than PCA at producing eigenfaces that captured the data needed to distinguish individuals. 
 
-\section{Video Segmentation Experiment}
+\subsection{Video Segmentation Experiment Setup}
 
 We used two different surveillance videos for experimenting background and foreground segmentation. The first video consists of a scene where a few birds move around in front of a largely white background. We cut a sequence of 36 frames from this video, each 1 second apart. The second video  displays a steady stream of cars moving down a highway. For traffic video, we cut a sequence of 31 frames from this video, each 1 second apart also. 
 
-Background Truth for each video was constructed by manually removing all the sparse noise from a carefully selected frame. Due to slight variations of lighting and video quality across frames, this method will not give us the exact Ground Truth. However, for the purpose of our analysis, this manually constructed Ground Truth is sufficient.
+Background Truth for each video was constructed by manually removing all the sparse noise from a carefully selected frame. Due to slight variations of lighting and video quality across frames, this method did give us the exact Ground Truth. However, for the purpose of our analysis, this manually constructed Ground Truth was sufficient.
+
+\subsection{Background and Foreground Modeling}
 \bigskip
 \begin{minipage}{\linewidth}
 \bgroup
@@ -275,7 +275,7 @@ Background Truth for each video was constructed by manually removing all the spa
     \begin{minipage}{.3\textwidth}
       \includegraphics[width=\linewidth, width=25mm]{figures_video/crow/original.png}
     \end{minipage}
-    \\[5ex] \hline
+    \\ \hline
 	Ground Truth (GT)
 	&
     \begin{minipage}{.3\textwidth}
@@ -289,7 +289,7 @@ Background Truth for each video was constructed by manually removing all the spa
     \begin{minipage}{.3\textwidth}
       \includegraphics[width=\linewidth, width=25mm]{figures_video/crow/background.png}
     \end{minipage}
-	\\[5ex] \hline
+	\\ \hline
 	
 	Extracted Background (EB)
 	&
@@ -304,7 +304,7 @@ Background Truth for each video was constructed by manually removing all the spa
     \begin{minipage}{.3\textwidth}
       \includegraphics[width=\linewidth, width=25mm]{figures_video/crow/pca2/lowRank_0.png}
     \end{minipage}
-	\\[6ex] \hline
+	\\ \hline
 	
 	(GT - EB) Heatmap
 	&
@@ -319,7 +319,7 @@ Background Truth for each video was constructed by manually removing all the spa
     \begin{minipage}{.3\textwidth}
       \includegraphics[width=\linewidth, width=25mm]{figures_video/crow/pca2/hm_0.png}
     \end{minipage}		
-	\\[6ex] \hline	
+	\\ \hline	
 	
 	Foreground Noise
 	&
@@ -334,32 +334,211 @@ Background Truth for each video was constructed by manually removing all the spa
     \begin{minipage}{.3\textwidth}
       \includegraphics[width=\linewidth, width=25mm]{figures_video/crow/pca2/noise_0.png}
     \end{minipage}
+	\\ \hline	
+	
+  \end{tabular}
+
+\bigskip
+\centerline{\textbf{Figure 6.6.1 Background and foreground segmentation on Bird Video }}
+\centerline{\textbf{using RPCA and PCA}}
+\bigskip
+\egroup
+\end{minipage}
+As we can see from Figure 6.6.1 and Figure 6.6.2, the extracted background from RPCA for both bird and traffic videos more closely resembles background truth than that of PCA. There is a very minor trace of sparse noise in the extracted background and the differences are uniform throughout the image. Backgrounds extracted from PCA, however, suffers higher “pollution” caused by sparse noise present across the frames. The area with most visible difference is highlighted in red.
+
+\bigskip
+\begin{minipage}{\linewidth}
+\bgroup
+  \begin{tabular}{ | c | m{2.8cm} | m{2.8cm} | m{2.8cm} | }
+    \hline
+    Image Type & RPCA \linebreak (2PC, $\lambda$=0.007) & PCA \linebreak (1 PC) & PCA \linebreak (2 PC)
+    \\ \hline
+	Original \linebreak Image
+    &
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/traffic/original.png}
+    \end{minipage}
+    & 
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/traffic/original.png}
+    \end{minipage}
+    &
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/traffic/original.png}
+    \end{minipage}
+    \\[5ex] \hline
+	Ground Truth (GT)
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/traffic/background.png}
+    \end{minipage}
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/traffic/background.png}
+    \end{minipage}
+    &
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/traffic/background.png}
+    \end{minipage}
+	\\[5ex] \hline
+	
+	Extracted Background (EB)
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/traffic/rpca/lowRank_0.png}
+    \end{minipage}	
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/traffic/pca/lowRank_0.png}
+    \end{minipage}
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/traffic/pca2/lowRank_0.png}
+    \end{minipage}
+	\\[6ex] \hline
+	
+	(GT - EB) Heatmap
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/traffic/rpca/hm_0.png}
+    \end{minipage}	
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/traffic/pca/hm_0.png}
+    \end{minipage}		
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/traffic/pca2/hm_0.png}
+    \end{minipage}		
+	\\[6ex] \hline	
+	
+	Foreground Noise
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/traffic/rpca/noise_0.png}
+    \end{minipage}
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/traffic/pca/noise_0.png}
+    \end{minipage}
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/traffic/pca2/noise_0.png}
+    \end{minipage}
 	\\[6ex] \hline	
 	
   \end{tabular}
 
 \bigskip
-\centerline{\textbf{Figure X. Background and foreground segmentation on Bird Video }}
+\centerline{\textbf{Figure 6.6.2 Background and foreground segmentation on Bird Video }}
 \centerline{\textbf{using RPCA and PCA}}
+\bigskip
 \egroup
 \end{minipage}
-As we can see from Figure X and Figure Y, the extracted background from RPCA for both bird and traffic videos more closely resembles background truth than that of PCA. There is a very minor trace of sparse noise in the extracted background and the differences are uniform throughout the image. Backgrounds extracted from PCA, however, suffers higher “pollution” caused by sparse noise present across the frames. The area with most visible difference is circled in red.
-
-For foreground noise comparison, the Bird Video in Figure X provides a good visual on the difference between RPCA and PCA. For RPCA, it can identify the exact pixel locations where a bird appears whereas for PCA, it is a mix of actual sparse noise and noise due to slight color variations in the frames. From here, we observe how RPCA prevents actual sparse noise from affecting our principal components without impacting the inherently Gaussian nature of the original dataset.
+For foreground noise comparison, the Bird Video in Figure 6.6.1 provided a good visual on the difference between RPCA and PCA. RPCA managed to identify the exact pixel locations for foreground objects whereas PCA captured a mix of sparse noise and noise due to slight color variations in the frames. From here, we observed how RPCA prevented actual sparse noise from affecting our principal components without impacting the inherently Gaussian nature of the original data.
 
 \centerline{\includegraphics[width=\linewidth, width=100mm]{figures_video/crow/rre_015.png}}
-\centerline{\textbf{Figure Z. Relative Reconstruction Error for Bird Video }}
+\centerline{\textbf{Figure 6.6.3 Relative Reconstruction Error for Bird Video }}
 \bigskip
 
-Figure Z shows the RRE for each background frame reconstructed from RPCA and PCA. Albeit a rough measure, we can see that RPCA’s extracted backgrounds are closer to Background Truth than PCA across almost all frames. Another interesting thing to note is that RRE for PCA using 2 components spikes for certain frames. This is because the 2nd principal component is “used up” in explaining the variations cause by sparse noise, causing a big deviation of reconstructed background from the Background Truth. The effect of sparse noise is a bit exaggerated for this data set but it highlights the fact that for real life data using PCA for dimensionality reduction, certain noise/outlier can cause a major problem due to the inability of PCA to handle sparse noise.
+Figure 6.6.3 shows the RRE for each background frame reconstructed from RPCA and PCA. Albeit a rough measure, we can see that RPCA’s extracted backgrounds are closer to Ground Truth than PCA, across almost all frames. Another interesting thing to note is that RRE for PCA using 2 components spiked for certain frames. The reason for this is that 2nd principal component was “used up” in explaining the variations cause by sparse noise, causing a big deviation of reconstructed background from the Ground Truth. The effect of sparse noise was exaggerated for this data but it highlighted the fact that for real life data using PCA for dimensionality reduction, certain noise/outlier can cause a major problem due to the inability of PCA to handle sparse noise.
 
-
+\subsection{Impact of $\lambda$ on Background and Foreground Modeling}
 Recall the equation for RPCA:
 \[ \argmin_{M'}(||A||_* + \lambda||E||_1) \text{,  subject to  }  D = A + E \]
 
-We think that it is interesting to explore the impact of Lambda on the low rank and spare component. 
+We were curious to know how $\lambda$ impacts the quality of our model and video segmentation provides a perfect opportunity to visualize this effect. Figure 6.6.4 shows the result for the Bird Video using $\lambda = 0.1$, instead of 0.015 as in Figure 6.6.1. With a large $\lambda$, RPCA’s performance in extracting background is roughly equivalent to naïve PCA. The impact of sparse noise on the extract background image for RPCA has also become apparent. The area of extracted foreground noise, on the other hand, is now much smaller and concentrated. With a large $\lambda$, RPCA is less aggressive in identifying noise and only large enough deviations from the Ground Truth are considered noise.
+\bigskip
 
-Figure Y one shows background segmentation of the Bird Video using $\lambda = 0.2$, instead of 0.015 as in Figure Y. We can see that with a $\lambda$, RPCA’s performance in extracting background is roughly equivalent to naïve PCA. The impact of sparse noise on the extract background image for RPCA has also become apparent. The area of extracted foreground noise, on the other hand, is now much smaller and concentrated. With a large $\lambda$, RPCA is less aggressive in identifying noise and only large enough deviations from Ground Truth are considered noise.
+\begin{minipage}{\linewidth}
+\bgroup
+  \begin{tabular}{ | c | m{2.8cm} | m{2.8cm} | m{2.8cm} | }
+    \hline
+    Image Type & RPCA \linebreak (2PC, $\lambda$=0.06) & PCA \linebreak (1 PC) & PCA \linebreak (2 PC)
+    \\ \hline
+	Original \linebreak Image
+    &
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/crow/original.png}
+    \end{minipage}
+    & 
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/crow/original.png}
+    \end{minipage}
+    &
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/crow/original.png}
+    \end{minipage}
+    \\ \hline
+	Ground Truth (GT)
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/crow/background.png}
+    \end{minipage}
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/crow/background.png}
+    \end{minipage}
+    &
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/crow/background.png}
+    \end{minipage}
+	\\ \hline
+	
+	Extracted Background (EB)
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/crow/rpca/lowRank_0_06.png}
+    \end{minipage}	
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/crow/pca/lowRank_0.png}
+    \end{minipage}
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/crow/pca2/lowRank_0.png}
+    \end{minipage}
+	\\ \hline
+	
+	(GT - EB) Heatmap
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/crow/rpca/hm_0_06.png}
+    \end{minipage}	
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/crow/pca/hm_0.png}
+    \end{minipage}		
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/crow/pca2/hm_0.png}
+    \end{minipage}		
+	\\ \hline	
+	
+	Foreground Noise
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/crow/rpca/noise_0_06.png}
+    \end{minipage}
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/crow/pca/noise_0.png}
+    \end{minipage}
+	&
+    \begin{minipage}{.3\textwidth}
+      \includegraphics[width=\linewidth, width=25mm]{figures_video/crow/pca2/noise_0.png}
+    \end{minipage}
+	\\ \hline	
+	
+  \end{tabular}
+
+\bigskip
+\centerline{\textbf{Figure 6.6.4 Segmentation on Bird Video wtih $\lambda = 0.06$ }}
+\egroup
+\end{minipage}
+\centerline{\includegraphics[width=\linewidth, width=100mm]{figures_video/crow/rre_006.png}}
+\centerline{\textbf{Figure 6.6.3 Relative Reconstruction Error for Bird Video with $\lambda=0.06$ }}
+\bigskip
 
 \section{Conclusion}
 
