@@ -33,6 +33,7 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{listings}
+\usepackage{float}
 \usepackage{tcolorbox}
 \usepackage{color}
 % These packages are all incorporated in the memoir class to one degree or another...
@@ -128,6 +129,8 @@ F(L, S, Y, \mu) = ||L||_* + \lambda ||S||_1 + <Y, M - L - S> + \frac{\mu}{2}||M-
 
 In addition, it uses an iterative approach towards updating the $S$ and $Y$ matrices that limits the number of SVD operations necessary for the algorithm to succeed. While this algorithm has not been proven correct, the fact that it is much faster in practice, and has been shown to converge in many practical demonstrations, we will use this algorithm when analyzing the performance of Robust PCA on our datasets. One important feature to note, is that it is recommended that $\mu_0$ be set to $\frac{1.25}{||M||_2}$.
 
+During the analysis section of this paper, we primarily used code obtained from \cite{usedcode}, which is a translation of the MATLAB implementation of RPCA into numpy created by Kyle Kastner.
+
 \section{Potential Uses for Robust PCA}
 
 \subsection{Facial Identification}
@@ -135,11 +138,10 @@ One area we would like to investigate more thoroughly here, is the impact that R
 
 There is another property of facial data that makes it an attractive target for PCA: it has been shown that an idealized Lambertian convex surface (that is, a convex surface that has an ideal matte appearance) when displayed with arbitrary illuminations, lies on a 9 dimensional subspace\cite{lambertian}. While faces are neither perfectly Lambertian nor perfectly convex, the fact that they may be approximated as such lends credence to the idea that analyzing a particular face (or group of faces) may involve looking for low dimensional data underlying the apparently complex representation of the images themselves (which can be on the order of thousands or even millions of pixels).
 
-Robust PCA has been shown to be capable of correctly identifying specularities in facial image data of a particular individual in the past\cite{rpca}. As part of our research, we will attempt to determine whether Robust PCA lends itself to analyzing large data sets of facial data with many different lighting circumstances. If the promises of the approach are to be believed, it should be capable of recognizing the irregularities caused by these circumstances and correcting for them, allowing for more accurate eigenfaces to be collected once the sparse error component is eliminated. 
+Robust PCA has been shown to be capable of correctly identifying specularities in facial image data of a particular individual in the past\cite{rpca}. As part of our research, we will attempt to determine whether Robust PCA lends itself to analyzing large data sets of facial data with many different lighting circumstances. If the promises of the approach are to be believed, it should be capable of recognizing the irregularities caused by these circumstances and correcting for them, allowing for more accurate eigenfaces to be collected once the sparse error component is eliminated.
 
 \subsection{Background / Foreground Segmentation of Videos}
 %TODO(silatt): The RPCA paper has some interesting stuff here, and I forget where I found out about F-measure, but that paper might also be interesting to link to.
-
 
 \section{Metrics}
 The remainder of our paper will be spent analyzing the performance of Robust PCA relative to PCA on various data sets. In order to do so we would like to define a few metrics that would be useful when discussing the accuracy of Robust PCA in reproducing the original low rank matrix.
@@ -149,7 +151,131 @@ One useful metric, and the one used by the original paper, was the metric $\frac
 
 One difficulty with using this form of error, while it is the most common type used in papers discussing the Robust PCA problem, is that when using real world data, the true low rank matrix is not known, only the original matrix $M$. Replacing $L_0$ with $M$ above results in the metric becomign $\frac{||E||_F}{||M||_F}$, or to restate another way, measures that the sum of the squares of the error matrix derived relative to the original matrix. This can be used to determine whether the Robust PCA algorithm has successfully found a relatively small error in it's decomposition, but does not give us much indication into how well it performed (that is, whether the low rank matrix obtained is truly indicative of the data underlying the metrics).
 
-\subsection{More Metrics?}
+\subsection{Clustering Metric}
+
+In the particular case of eigenfaces, one stated goal of the creation of the eigenfaces involved is to allow for easy recognition of particular people. As such, we could evaluate how well our eigenfaces perform based on how well they correctly cause images of the same person to be clustered close together. Let us call $v_1 .. v_k$ to be the projection of a particular image onto the first to the kth eigenface generated either Robust or standard PCA, which is a natural dimensionality reduction often used to analyze PCA performance.
+
+We can evaluate how well our data is clustered within the projection by using the silhouette width\cite{silhouette} for the clusters in the new projected space. Assuming we have mapped each metric into the basis provided by the k eigenfaces (let us call these mapped vectors objects $o_1 .. o_m$), we can define our clusters $C_1 .. C_n$ to be the natural clusters formed when clustering all images of the same individual.
+
+We can define $a(o_i)$ to be the average distance of the object $o_i$ within it's cluster, $b(o_i)$ to the minimum over all other clusters of average distance to that cluster, and the silhouette distance for that object to be the difference of those measures over the maximum.
+
+\[
+a(o_i) = \frac{1}{|C_{o_i}| - 1} \sum_{o_j \in C_{o_i}, o_j \ne o_i} d(o_i, o_j)
+\]
+
+\[
+b(o_i) = \min_{C_B \ne C_{o_i}} \frac{1}{|C_B|} \sum_{o_j \in C_B} d(o_i, o_j)
+\]
+
+\[
+sil(o_i) = \frac{b(o_i) - a(o_i)}{\max{a(o_i), b(o_i)}}
+\]
+
+Then, the silhouette width of the a cluster is naturally defined as the average silhouette width of the objects within it, and the width of the entire clustering to be the average over its clusters.
+ 
+\[
+sil(C_i) = \frac{1}{|C_i|}\sum_{o_j \in C_i} sil(o_j)
+\]
+
+\[
+sil(C) = \frac{1}{n}\sum_{i = 1}^{n} sil(C_i)
+\]
+
+In general, the silhouette width is a number from -1 to 1 indicating how close the clusters are. If the number is 1, the in-cluster distances are infinitely closer than the between cluster distances. A number below 0 tends to indicate that there are more natural clusters, as the average object is closer to a different cluster than the one it was placed in. In addition, the silhouette score can be used with any distance metric.
+
+\section{Results}
+
+\subsection{Eigenface Experiment Setup}
+
+As part of the analysis for the use of RPCA to obtained eigenfaces, we used the Extended Yale Face Database B\cite{yaleb}. In particular, we used the cropped form of this database introduced by \cite{croppedyaleb}. This database contains 16128 images of 28 human subjects under 9 poses and 64 illumination conditions. The images were $168 \times 192$, and were treated as dimension $32256$ vectors. The goal here was to determine whether RPCA was capable of improved performance over PCA given the variety of lighting conditions and the various effects they have on the images.
+
+In order to measure the performance on the dataset, we primarily sought to measure the effectiveness of projection onto the eigenfaces generated via each method of producing clusters capable of identifying individuals. The primary goal of eigenface production is to be able to create a small dimensional vector allowing for facial recognition, after all. Using the Scikit \cite{scikit} python library, we were able to perform PCA on the images, and then estimate the silhoutte score of the projections onto the eigenvectors. Then, using the IALM library\cite{usedcode} we could decompose the images into low rank and sparse error components, and do the same with the eigenfaces generated by performing PCA on the low rank result.
+
+\subsection{Trial 1: Full dataset}
+
+The first trial of this methodology was done on the full dataset. To give you an idea of the images used and their lighting conditions, here are 5 random images of one of the subjects. Note that the lighting conditions vary dramatically.
+
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{figures/person24trial1.jpg} 
+\centering
+\end{figure}
+
+The analysis proceeded with running PCA on the images, then running RPCA with a variety of values for the $\lambda$ parameter (after some experimentation 0.001, 0.005, 0.01, and 0.02 were chosen as reasonably comprehensive values). After that, the original images were projected onto the eigenfaces produced from PCA and RPCA (going up to the eigenface that contained $90\%$ of the variance of the dataset in the PCA case. The graphs in the appendix demonstrate the silhouette of the resulting vectors, where the x axis the number of eigenfaces used in the projection, and the y axis is the silhouette score. Three difference distance metrics (cityblock, or $l1$-norm, euclidian, or $l2$-norm, and the cosine distance) were used. 
+
+In general, RPCA performed slightly better than PCA, but not by a significant difference (it is barely noticable in the graphs). Neither PCA nor RPCA was capable of producing a silhouette score greater than zero, indicating that they did not map images of the same subject into appropriate clusters. The lambda value that performed best was $0.005$, and when lambda was $0.001$, the resulting low rank matrix lost enough of the features of the original images that the silhouette score plateaued after only around 11 eigenfaces.
+
+As far as RRE scores, the relative error component was $4\%$ of the original dataset with $\lambda = 0.2$ and $59\%$ of the dataset when $\lambda = 0.001$.
+
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{figures/person24Afterl=0dot005RPCAtrial1.jpg} 
+\centering
+\end{figure}
+
+We can qualitatively analyze the images when the sparse error is removed from them to see what RPCA did accomplish, and why it did not result in the kind of improved eigenface performance we may have hoped. 
+
+Here are the same faces shown above, but after the sparse error term has been removed by the IALM method (with $\lambda = 0.005$, or the best performing value of lambda). It's easy to see that the faces have had the specularities removed (in particular, note that the shine in the eyes has been removed). Clearly removing the sparse error inherent in these small abberations benefits us some, but it is not the dramatic change we would have hoped. Ideally, the shadows themselves could be considered error, and removed during the decomposition. Upon further consideration it seems that the shadows are themselves low rank, and thuis cannot be identified by the RPCA methodology as needing to be corrected. This explains why we didn't get the benefit we anticipated.
+
+We can add a datapoint to our qualitative analysis somewhat by looking at what happened when we set $\lambda = 0.001$. In this case, the algorithm pays very little penality for making the 'sparse error' term relatively large (and in fact made a dramatic $59\%$ of the original images into the 'error'.
+
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{figures/person24Afterl=0dot001RPCAtrial1.jpg} 
+\centering
+\end{figure}
+
+Here we can see that when given more leeway, the RPCA algorithm actually does an interesting thing, it begins to make the faces more similar to the eigenfaces, but keeps the various lighting conditions! This backs up our assertion that the reason that RPCA does not adequately improve performance when faced with various lightining conditions is that the lighting conditions are themselves low rank. If they were not, the RPCA algorithm would attempt to remove them.
+
+Another interesting thing to note here (while not entirely relevant to RPCA) is that the euclidean distance metric was the best metric for the silhouette score here, but that none of the metrics were able to cross the 0 value. That is, no clustering was accomplished that adequately separated different indviduals using these methods.
+
+\subsection{Trial 2: Bright dataset}
+
+In an attempt to see whether RPCA added some value over PCA in slightly better conditions, the same analysis was rerun on a subset of the images that were not fully obscured or at very large angles. For the exact images one can look at the brightyalefaces/ directory in the github that supports this analysis, but here are five randomly selected images of the same subject from the second trial:
+
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{figures/person24trial2.jpg} 
+\centering
+\end{figure}
+
+However, as can be seen in the appendix. this trial performed very similarly to the first, with the RPCA method offering little value over PCA. Interestingly in this case, the cosine metric performed most successfully in distinguishing images. While PCA did allow most of the variance (and the clustering) of the dataset to be translated into a \emph{much} smaller  number of dimension (~40 down from 32256, or $0.1\%$), RPCA did not add improve this reduction. It did however, yet again produce images that could qualitatively be said to have less small photographic aberrations. At the very least, RPCA serves as a reasonable selfie-filter.
+
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{figures/person24Afterl=0dot005RPCAtrial2.jpg} 
+\centering
+\end{figure}
+
+\subsection{Trial 3: Best dataset}
+
+Finally, the same analysis was performed on only those images that were very well lit (which can be found in bestyalefaces/ in the attached github project). The results were very similar, but to quickly summarize: again cosine was the best separating metric, again RPCA performed negligibly better than PCA at producing eigenfaces that captured the data needed to distinguish individuals. 
+
+\newpage
+
+\section{Appendix}
+
+\subsection{Trial 1 - Graphs}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/rpcatrial1cityblock.png}\\
+\includegraphics[width=0.6\textwidth]{figures/rpcatrial1cosine.png}\\
+\includegraphics[width=0.6\textwidth]{figures/rpcatrial1euclidean.png}\\
+\end{figure}
+
+\subsection{Trial 2- Graphs}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/rpcatrial2cityblock.png}\\
+\includegraphics[width=0.6\textwidth]{figures/rpcatrial2cosine.png}\\
+\includegraphics[width=0.6\textwidth]{figures/rpcatrial2euclidean.png}\\
+\end{figure}
+
+\subsection{Trial3- Graphs}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/rpcatrial3cityblock.png}\\
+\includegraphics[width=0.6\textwidth]{figures/rpcatrial3cosine.png}\\
+\includegraphics[width=0.6\textwidth]{figures/rpcatrial3euclidean.png}\\
+\end{figure}
 
 
 \begin{thebibliography}{9}
@@ -162,7 +288,17 @@ One difficulty with using this form of error, while it is the most common type u
 
 \bibitem{pca} Eckart, C., \& Young, G. (1936). The approximation of one matrix by another of lower rank. Psychometrika, 1(3), 211-218.
 
+\bibitem{yaleb} Georghiades, A. S., Belhumeur, P. N., \& Kriegman, D. J. (2001). From few to many: Illumination cone models for face recognition under variable lighting and pose. IEEE transactions on pattern analysis and machine intelligence, 23(6), 643-660.
+
+\bibitem{usedcode} Kastner, K. (2014) "Robust Matrix Decomposition." Garbage In Garbage Out. http://kastnerkyle.github.io/posts/robust-matrix-decomposition/
+
+\bibitem{croppedyaleb} Lee, K. C., Ho, J., \& Kriegman, D. J. (2005). Acquiring linear subspaces for face recognition under variable lighting. IEEE Transactions on pattern analysis and machine intelligence, 27(5), 684-698.
+
 \bibitem{iaml} Lin, Z., Chen, M., \& Ma, Y. (2010). The augmented lagrange multiplier method for exact recovery of corrupted low-rank matrices. arXiv preprint arXiv:1009.5055.
+
+\bibitem{scikit} Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., ... \& Vanderplas, J. (2011). Scikit-learn: Machine learning in Python. Journal of Machine Learning Research, 12(Oct), 2825-2830.
+
+\bibitem{silhouette} Rousseeuw, P. J. (1987). Silhouettes: a graphical aid to the interpretation and validation of cluster analysis. Journal of computational and applied mathematics, 20, 53-65.
 
 \bibitem{rpca} Wright, J., Ganesh, A., Rao, S., Peng, Y., \& Ma, Y. (2009). Robust principal component analysis: Exact recovery of corrupted low-rank matrices via convex optimization. In Advances in neural information processing systems (pp. 2080-2088).
 
