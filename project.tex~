@@ -141,11 +141,8 @@ There is another property of facial data that makes it an attractive target for 
 
 Robust PCA has been shown to be capable of correctly identifying specularities in facial image data of a particular individual in the past\cite{rpca}. As part of our research, we will attempt to determine whether Robust PCA lends itself to analyzing large data sets of facial data with many different lighting circumstances. If the promises of the approach are to be believed, it should be capable of recognizing the irregularities caused by these circumstances and correcting for them, allowing for more accurate eigenfaces to be collected once the sparse error component is eliminated.
 
-\section{Video Segmentation}
-
-One area where RPCA is commonly used is in video surveillance. In surveillance videos, each frame can be considered as having two major components- the static background and the moving, sparse foreground objects. Recall that RPCA decomposes the original matrix M into two parts, the low rank part L and the sparse part, S. Therefore, for video surveillance, background can be modeled as the low rank component L and the foreground objects can be modeled as the sparse component, S.
-
-Turns out, naïve PCA can also be used for separating video background and foreground objects since background remains largely the same across frames and PCA can provide a robust probability distribution of the background. However, PCA is known to be susceptible to noise and we think it is interesting to explore how this naïve PCA modeling of background and foreground compare against RPCA and in the process, gain more insights into how RPCA works and how it complements PCA.
+\subsection{Background / Foreground Segmentation of Videos}
+%TODO(silatt): The RPCA paper has some interesting stuff here, and I forget where I found out about F-measure, but that paper might also be interesting to link to.
 
 \section{Metrics}
 The remainder of our paper will be spent analyzing the performance of Robust PCA relative to PCA on various data sets. In order to do so we would like to define a few metrics that would be useful when discussing the accuracy of Robust PCA in reproducing the original low rank matrix.
@@ -185,6 +182,7 @@ sil(C_i) = \frac{1}{|C_i|}\sum_{o_j \in C_i} sil(o_j)
 sil(C) = \frac{1}{n}\sum_{i = 1}^{n} sil(C_i)
 \]
 
+<<<<<<< HEAD
 In general, the silhouette width is a number from -1 to 1 indicating how close the clusters are. If the number is 1, the in-cluster distances are infinitely closer than the between cluster distances. A number below 0 tends to indicate that there are more natural clusters, as the average object is closer to a different cluster than the one it was placed in. In addition, the silhouette score can be used with any distance metric.
 
 \section{Results}
@@ -249,6 +247,45 @@ However, as can be seen in the appendix. this trial performed very similarly to 
 \subsection{Trial 3: Best dataset}
 
 Finally, the same analysis was performed on only those images that were very well lit (which can be found in bestyalefaces/ in the attached github project). The results were very similar, but to quickly summarize: again cosine was the best separating metric, again RPCA performed negligibly better than PCA at producing eigenfaces that captured the data needed to distinguish individuals. 
+
+\newpage
+
+\section{Appendix}
+
+\subsection{Trial 1 - Graphs}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/rpcatrial1cityblock.png}\\
+\includegraphics[width=0.6\textwidth]{figures/rpcatrial1cosine.png}\\
+\includegraphics[width=0.6\textwidth]{figures/rpcatrial1euclidean.png}\\
+\end{figure}
+
+\subsection{Trial 2- Graphs}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/rpcatrial2cityblock.png}\\
+\includegraphics[width=0.6\textwidth]{figures/rpcatrial2cosine.png}\\
+\includegraphics[width=0.6\textwidth]{figures/rpcatrial2euclidean.png}\\
+\end{figure}
+
+\subsection{Trial3- Graphs}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/rpcatrial3cityblock.png}\\
+\includegraphics[width=0.6\textwidth]{figures/rpcatrial3cosine.png}\\
+\includegraphics[width=0.6\textwidth]{figures/rpcatrial3euclidean.png}\\
+\end{figure}
+=======
+We can plot this coefficient over the choice of number of eigenfaces for each process (PCA and Robust PCA, varying $\lambda$) in order to determine what method leads to the most natural clustering of faces into the correct groups.
+
+\section{Video Segmentation}
+
+One area where RPCA is commonly used is in video surveillance. In surveillance videos, each frame can be considered as having two major components- the static background and the moving, sparse foreground objects. Recall that RPCA decomposes the original matrix M into two parts, the low rank part L and the sparse part, S. Therefore, for video surveillance, background can be modeled as the low rank component L and the foreground objects can be modeled as the sparse component, S.
+
+Turns out, naïve PCA can also be used for separating video background and foreground objects since background remains largely the same across frames and PCA can provide a robust probability distribution of the background. However, PCA is known to be susceptible to noise and we think it is interesting to explore how this naïve PCA modeling of background and foreground compare against RPCA and in the process, gain more insights into how RPCA works and how it complements PCA.
 
 \section{Video Segmentation Experiment}
 
@@ -361,42 +398,8 @@ We think that it is interesting to explore the impact of Lambda on the low rank 
 
 Figure Y one shows background segmentation of the Bird Video using $\lambda = 0.2$, instead of 0.015 as in Figure Y. We can see that with a $\lambda$, RPCA’s performance in extracting background is roughly equivalent to naïve PCA. The impact of sparse noise on the extract background image for RPCA has also become apparent. The area of extracted foreground noise, on the other hand, is now much smaller and concentrated. With a large $\lambda$, RPCA is less aggressive in identifying noise and only large enough deviations from Ground Truth are considered noise.
 
-\section{Conclusion}
-
-We have analyzed the use of RPCA in two separate domains: for facial recognition and for video segmentation. Our results show that while it has been said to have uses in the former domain, the fact that facial shadowing is itself low rank, it does not effectively separate that out, and in fact performs only marginally better than PCA (and certainly not enough to justify the longer processing time). However, in the latter case of video segementation, it performed quitre well.
-
-Based on the above experiments, we observed that RPCA is useful for removing irregularities in our dataset and therefore can help PCA obtain a good model governing the data. However, what makes RPCA effective is the regularization parameter lambda that controls how much noise to be removed. In addition, it is important that RPCA be applied in circumstances where the error is of a type that the method will recognize. Like any other machine learning technique, the first step towards effective dimensionality reduction is to understand the nature of our dataset and apply RPCA appropriately.
-
-\newpage
-
-\section{Appendix}
-
-\subsection{Trial 1 - Graphs}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.6\textwidth]{figures/rpcatrial1cityblock.png}\\
-\includegraphics[width=0.6\textwidth]{figures/rpcatrial1cosine.png}\\
-\includegraphics[width=0.6\textwidth]{figures/rpcatrial1euclidean.png}\\
-\end{figure}
-
-\subsection{Trial 2- Graphs}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.6\textwidth]{figures/rpcatrial2cityblock.png}\\
-\includegraphics[width=0.6\textwidth]{figures/rpcatrial2cosine.png}\\
-\includegraphics[width=0.6\textwidth]{figures/rpcatrial2euclidean.png}\\
-\end{figure}
-
-\subsection{Trial3- Graphs}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.6\textwidth]{figures/rpcatrial3cityblock.png}\\
-\includegraphics[width=0.6\textwidth]{figures/rpcatrial3cosine.png}\\
-\includegraphics[width=0.6\textwidth]{figures/rpcatrial3euclidean.png}\\
-\end{figure}
+Based on the above experiment, we observed that RPCA is useful for removing irregularities in our dataset and therefore can help PCA obtain a good model governing the data. However, what makes RPCA effective is the regularization parameter lambda that controls how much noise to be removed. There are also different types of RPCA that are designed for removing specific types of noise[Link Paper]. Like any other machine learning problems, the first step towards effective dimensionality reduction is to understand the nature of our dataset and apply RPCA accordingly.
+>>>>>>> master
 
 
 \begin{thebibliography}{9}
