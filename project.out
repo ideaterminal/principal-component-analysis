@@ -1,0 +1,24 @@
+\BOOKMARK [1][-]{section.1}{Abstract}{}% 1
+\BOOKMARK [1][-]{section.2}{Introduction}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Principal Component Analysis}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Robust Principal Component Analysis}{section.2}% 4
+\BOOKMARK [1][-]{section.3}{Potential Uses for RPCA}{}% 5
+\BOOKMARK [2][-]{subsection.3.1}{Facial Identification}{section.3}% 6
+\BOOKMARK [1][-]{section.4}{Video Segmentation}{}% 7
+\BOOKMARK [1][-]{section.5}{Metrics}{}% 8
+\BOOKMARK [2][-]{subsection.5.1}{Frobenius error}{section.5}% 9
+\BOOKMARK [2][-]{subsection.5.2}{Clustering Metric}{section.5}% 10
+\BOOKMARK [1][-]{section.6}{Results}{}% 11
+\BOOKMARK [2][-]{subsection.6.1}{Eigenface Experiment Setup}{section.6}% 12
+\BOOKMARK [2][-]{subsection.6.2}{Trial 1: Full dataset}{section.6}% 13
+\BOOKMARK [2][-]{subsection.6.3}{Trial 2: Bright dataset}{section.6}% 14
+\BOOKMARK [2][-]{subsection.6.4}{Trial 3: Best dataset}{section.6}% 15
+\BOOKMARK [2][-]{subsection.6.5}{Video Segmentation Experiment Setup}{section.6}% 16
+\BOOKMARK [2][-]{subsection.6.6}{Background and Foreground Modeling}{section.6}% 17
+\BOOKMARK [2][-]{subsection.6.7}{Impact of \040on Background and Foreground Modeling}{section.6}% 18
+\BOOKMARK [1][-]{section.7}{Conclusion}{}% 19
+\BOOKMARK [1][-]{section.8}{Appendix}{}% 20
+\BOOKMARK [2][-]{subsection.8.1}{Trial 1 - Graphs}{section.8}% 21
+\BOOKMARK [2][-]{subsection.8.2}{Trial 2- Graphs}{section.8}% 22
+\BOOKMARK [2][-]{subsection.8.3}{Trial3- Graphs}{section.8}% 23
+\BOOKMARK [1][-]{section*.9}{References}{}% 24

@@ -32,6 +32,7 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{listings}
+\usepackage{hyperref}
 \usepackage{float}
 \usepackage{tcolorbox}
 \usepackage{color}
@@ -83,12 +84,13 @@
 	\vfill
 
 % Bottom of the page
+	{\itshape Code can be found at \href{https://github.com/Cynocracy/principal-component-analysis}{our github} \par}
 	{\large \today\par}
 \end{titlepage}
 
 
 \section{Abstract}
-In this paper we analyze the performance of Principal Component Analysis (PCA) and Robust Principal Component Analysis (RPCA) on datasets that are artificially made noisy. In particular, we use a method\cite{pcp} which attempts to decompose the corrupted matrix into a low rank and a sparse component. The low rank component can then be used to recover the principal components for the data being analyzed. We attempted this on facial data (to recover eigenfaces) and on video data (as background recovery) and examined the performance of RPCA for each of these applications.
+In this paper we analyze the performance of Principal Component Analysis (PCA) and Robust Principal Component Analysis (RPCA) on datasets that are artificially made noisy. In particular, we use a method\cite{pcp} which attempts to decompose the corrupted matrix into a low rank and a sparse component. The low rank component can then be used to recover the principal components for the data being analyzed. We attempted this on facial data (to recover eigenfaces) and on video data (as background recovery) and examined the performance of RPCA for each of these applications. The full results of this analysis and the code used can be found on \href{https://github.com/Cynocracy/principal-component-analysis}{our github project}.
 
 \section{Introduction}
 
